@@ -99,14 +99,51 @@ Copy-Item -Recurse skills/make-knowledge-cards ".workbuddy\skills\"
 ## 目录结构
 
 ```
-skills/make-knowledge-cards/
-├── SKILL.md            # Skill 主文件（规则与流程）
-├── agents/
-│   └── openai.yaml     # OpenAI Agents SDK 兼容的 agent 定义
-└── examples/
-    ├── input.md        # 示例输入
-    └── output.md       # 示例输出
+skills/
+├── make-knowledge-cards/
+│   ├── SKILL.md
+│   ├── agents/
+│   │   └── openai.yaml
+│   └── examples/
+│       ├── input.md
+│       └── output.md
+└── publish-to-github/
+    ├── SKILL.md
+    ├── agents/
+    │   └── openai.yaml
+    └── scripts/
+        └── publish_to_github.ps1
 ```
+
+## GitHub 一键发布
+
+本仓库还提供了一个辅助 Skill：`publish-to-github`。它用于把本地 Git 项目按标准流程发布到 GitHub，包括：
+
+- 检查 `gh` 是否已安装并登录
+- 创建远程仓库并推送当前分支
+- 创建 tag
+- 创建 GitHub Release
+
+### 快速开始
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\skills\publish-to-github\scripts\publish_to_github.ps1 -RepoName article-to-knowledge-cards -Visibility public -TagName v0.1.0 -ReleaseTitle "v0.1.0"
+```
+
+### 常见参数
+
+- `-RepoName`：GitHub 仓库名
+- `-Visibility`：`public` / `private`
+- `-TagName`：版本号，如 `v0.1.0`
+- `-ReleaseTitle`：GitHub Release 标题
+- `-ReleaseNotes`：发布说明
+- `-Branch`：目标分支，默认 `main`
+
+### 常见问题
+
+- 如果提示 `gh` 未安装：先安装 GitHub CLI
+- 如果提示未登录：浏览器授权后再重试
+- 如果当前目录不是 Git 仓库：先执行 `git init` 与 `git commit`
 
 ## 开源说明
 
