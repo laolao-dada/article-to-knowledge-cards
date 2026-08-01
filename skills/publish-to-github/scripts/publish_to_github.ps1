@@ -101,8 +101,8 @@ if ($LASTEXITCODE -ne 0) {
 
 if (-not $SkipTag) {
     Write-Section 'Create and push tag'
-    $tagExists = git rev-parse --verify $TagName 2>$null
-    if (-not $tagExists) {
+    git rev-parse --verify "refs/tags/$TagName" *> $null
+    if ($LASTEXITCODE -ne 0) {
         git tag -a $TagName -m $ReleaseTitle
         git push origin $TagName
         if ($LASTEXITCODE -ne 0) {
