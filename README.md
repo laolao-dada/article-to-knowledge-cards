@@ -115,36 +115,6 @@ skills/
         └── publish_to_github.ps1
 ```
 
-## GitHub 一键发布
-
-本仓库还提供了一个辅助 Skill：`publish-to-github`。它用于把本地 Git 项目按标准流程发布到 GitHub，包括：
-
-- 检查 `gh` 是否已安装并登录
-- 创建远程仓库并推送当前分支
-- 创建 tag
-- 创建 GitHub Release
-
-### 快速开始
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\skills\publish-to-github\scripts\publish_to_github.ps1 -RepoName article-to-knowledge-cards -Visibility public -TagName v0.1.0 -ReleaseTitle "v0.1.0"
-```
-
-### 常见参数
-
-- `-RepoName`：GitHub 仓库名
-- `-Visibility`：`public` / `private`
-- `-TagName`：版本号，如 `v0.1.0`
-- `-ReleaseTitle`：GitHub Release 标题
-- `-ReleaseNotes`：发布说明
-- `-Branch`：目标分支，默认 `main`
-
-### 常见问题
-
-- 如果提示 `gh` 未安装：先安装 GitHub CLI
-- 如果提示未登录：浏览器授权后再重试
-- 如果当前目录不是 Git 仓库：先执行 `git init` 与 `git commit`
-
 ## 开源说明
 
 本 Skill 仅依赖 Skill 自身的指令（无额外脚本），`SKILL.md` 与 `agents/openai.yaml` 规则保持一致，可直接用于 WorkBuddy 或遵循 OpenAI Agents 规范的运行环境。欢迎在遵守许可证的前提下自由使用与修改。
