@@ -18,6 +18,24 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+function Resolve-GitHubRepoIdentifier {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$InputName
+    )
+
+    if ($InputName -match '/') {
+        return $InputName
+    }
+
+    $remoteUrl = git remote get-url origin 2>$null
+    if ($remoteUrl -match 'github\.com[:/](?<owner>[^/]+)/(?<repo>[^/.]+?)(?:\.git)?$') {
+        return "$($Matches.owner)/$($Matches.repo)"
+    }
+
+    return $InputName
+}
+
 function Write-Section($title) {
     Write-Host ""
     Write-Host "==== $title ====" -ForegroundColor Cyan
@@ -56,23 +74,25 @@ if (-not $currentBranch) {
     throw 'No current branch detected.'
 }
 
-if (git show-ref --verify --quiet "refs/heads/$Branch") {
+$branchExists = git show-ref --verify --quiet "refs/heads/$Branch"
+if ($LASTEXITCODE -eq 0) {
     git checkout $Branch
 } else {
     git checkout -b $Branch
 }
 
 Write-Section 'Create repository'
-$repoExists = gh repo view $RepoName --json name --jq '.name' 2>$null
+$resolvedRepo = Resolve-GitHubRepoIdentifier -InputName $RepoName
+$repoExists = gh repo view $resolvedRepo --json name --jq '.name' 2>$null
 if ($LASTEXITCODE -ne 0) {
     $visibilityFlag = if ($Visibility -eq 'public') { '--public' } else { '--private' }
-    gh repo create $RepoName $visibilityFlag --source . --remote origin --push
+    gh repo create $resolvedRepo $visibilityFlag --source . --remote origin --push
     if ($LASTEXITCODE -ne 0) {
         throw 'Failed to create the GitHub repository or push the current branch.'
     }
 } else {
     git remote remove origin 2>$null
-    git remote add origin "https://github.com/$RepoName.git"
+    git remote add origin "https://github.com/$resolvedRepo.git"
     git push --set-upstream origin $Branch
     if ($LASTEXITCODE -ne 0) {
         throw 'Failed to push the branch to the existing GitHub repository.'
@@ -106,7 +126,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Section 'Result'
-Write-Host "Repository: https://github.com/$RepoName"
+Write-Host "Repository: https://github.com/$resolvedRepo"
 Write-Host "Branch: $Branch"
 Write-Host "Tag: $TagName"
 Write-Host "Release: $ReleaseTitle"
